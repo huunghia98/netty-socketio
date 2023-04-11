@@ -418,4 +418,11 @@ public class Namespace implements SocketIONamespace {
         return allClients.get(uuid);
     }
 
+    public StoreFactory getStoreFactory() {
+        return storeFactory;
+    }
+
+    public AckMode getAckMode() {
+        return ackMode;
+    }
 }

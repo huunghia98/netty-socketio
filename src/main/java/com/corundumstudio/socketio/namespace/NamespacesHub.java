@@ -15,6 +15,8 @@
  */
 package com.corundumstudio.socketio.namespace;
 
+import com.hazelcast.util.function.Function;
+import com.hazelcast.util.function.Supplier;
 import io.netty.util.internal.PlatformDependent;
 
 import java.util.ArrayList;
@@ -26,20 +28,29 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.misc.CompositeIterable;
+import io.reactivex.rxjava3.functions.BiFunction;
 
 public class NamespacesHub {
 
     private final ConcurrentMap<String, SocketIONamespace> namespaces = PlatformDependent.newConcurrentHashMap();
     private final Configuration configuration;
 
+    private final BiFunction<String, Configuration, Namespace> createNamespaceFn;
+
     public NamespacesHub(Configuration configuration) {
         this.configuration = configuration;
+        this.createNamespaceFn = null;
     }
 
-    public Namespace create(String name) {
+    public NamespacesHub(Configuration configuration, BiFunction<String, Configuration, Namespace> createNamespaceFn) {
+        this.configuration = configuration;
+        this.createNamespaceFn = createNamespaceFn;
+    }
+
+    public Namespace create(String name) throws Throwable {
         Namespace namespace = (Namespace) namespaces.get(name);
         if (namespace == null) {
-            namespace = new Namespace(name, configuration);
+            namespace = createNamespaceFn == null ? new Namespace(name, configuration) : createNamespaceFn.apply(name, configuration);
             Namespace oldNamespace = (Namespace) namespaces.putIfAbsent(name, namespace);
             if (oldNamespace != null) {
                 namespace = oldNamespace;

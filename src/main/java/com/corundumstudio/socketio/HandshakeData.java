@@ -34,6 +34,7 @@ public class HandshakeData implements Serializable {
     private String url;
     private Map<String, List<String>> urlParams;
     private boolean xdomain;
+    private Map<String, Object> extended;
 
     // needed for correct deserialization
     public HandshakeData() {
@@ -119,4 +120,11 @@ public class HandshakeData implements Serializable {
         return null;
     }
 
+    public Map<String, Object> getExtended() {
+        return extended;
+    }
+
+    public void setExtended(Map<String, Object> extended) {
+        this.extended = extended;
+    }
 }

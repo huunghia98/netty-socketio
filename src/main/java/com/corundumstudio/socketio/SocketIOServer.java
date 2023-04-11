@@ -63,6 +63,13 @@ public class SocketIOServer implements ClientListeners {
         mainNamespace = addNamespace(Namespace.DEFAULT_NAME);
     }
 
+    public SocketIOServer(Configuration configuration, NamespacesHub namespacesHub) {
+        this.configuration = configuration;
+        this.configCopy = new Configuration(configuration);
+        this.namespacesHub = namespacesHub;
+        mainNamespace = addNamespace(Namespace.DEFAULT_NAME);
+    }
+
     public void setPipelineFactory(SocketIOChannelInitializer pipelineFactory) {
         this.pipelineFactory = pipelineFactory;
     }
@@ -220,7 +227,11 @@ public class SocketIOServer implements ClientListeners {
     }
 
     public SocketIONamespace addNamespace(String name) {
-        return namespacesHub.create(name);
+        try {
+            return namespacesHub.create(name);
+        } catch (Throwable ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public SocketIONamespace getNamespace(String name) {
